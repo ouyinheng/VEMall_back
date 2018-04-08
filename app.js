@@ -1,4 +1,6 @@
 require('babel-polyfill');
+var Geetest = require('gt3-sdk');
+var session = require('express-session');
 var express = require('express');
 var fs = require('fs');
 var path = require('path');
@@ -9,7 +11,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var formidable = require('formidable');//文件上传
 
-var subjectRoute = require('./routes/subjectRoute');
+var adminRoute = require('./routes/adminRoute');
 var massRoute = require('./routes/massRoute');
 
 var app = express();
@@ -23,9 +25,152 @@ app.all('*', function(req, res, next) {
     res.header("Content-Type", "application/json;charset=utf-8");
     next();
 });
-var multer = require('multer');
+/*var multer = require('multer');
 var upload = multer({
     dest: './public/upload/'
+});*/
+app.use(session({
+    secret: 'my-secret',
+    resave: false,
+    saveUninitialized: true
+}));
+// pc 端接口
+
+var captcha1 = new Geetest({
+    geetest_id: 'c08676bb018656d3bded95215c034249',
+    geetest_key: 'da11dfd5ac9119a37f495b98b7341b1c'
+});
+app.get("/gt/register1", function (req, res) {
+    // 向极验申请每次验证所需的challenge
+    captcha1.register({
+        client_type: 'unknown',
+        ip_address: 'unknown'
+    }, function (err, data) {
+        if (err) {
+            console.error(err);
+            return;
+        }
+
+        if (!data.success) {
+            // 进入 failback，如果一直进入此模式，请检查服务器到极验服务器是否可访问
+            // 可以通过修改 hosts 把极验服务器 api.geetest.com 指到不可访问的地址
+
+            // 为以防万一，你可以选择以下两种方式之一：
+
+            // 1. 继续使用极验提供的failback备用方案
+            req.session.fallback = true;
+            res.send(data);
+
+            // 2. 使用自己提供的备用方案
+            // todo
+
+        } else {
+            // 正常模式
+            req.session.fallback = false;
+            res.send(data);
+        }
+    });
+});
+
+app.post("/gt/form-validate1", function (req, res) {
+
+    // 对form表单提供的验证凭证进行验证
+    captcha1.validate(req.session.fallback, {
+
+        geetest_challenge: req.body.geetest_challenge,
+        geetest_validate: req.body.geetest_validate,
+        geetest_seccode: req.body.geetest_seccode
+
+    }, function (err, success) {
+
+        if (err) {
+            // 网络错误
+            res.send(err);
+
+        } else if (!success) {
+
+            // 二次验证失败
+            res.send("<h1 style='text-align: center'>登录失败</h1>");
+
+        } else {
+            res.send("<h1 style='text-align: center'>登录成功</h1>");
+        }
+
+    });
+});
+
+var captcha2 = new Geetest({
+    geetest_id: 'c08676bb018656d3bded95215c034249',
+    geetest_key: 'da11dfd5ac9119a37f495b98b7341b1c'
+});
+
+app.get("/gt/register2", function (req, res) {
+
+    // 向极验申请每次验证所需的challenge
+    captcha2.register({
+        client_type: 'unknown',
+        ip_address: 'unknown'
+    }, function (err, data) {
+        if (err) {
+            console.error(err);
+            return;
+        }
+
+        if (!data.success) {
+            // 进入 failback，如果一直进入此模式，请检查服务器到极验服务器是否可访问
+            // 可以通过修改 hosts 把极验服务器 api.geetest.com 指到不可访问的地址
+
+            // 为以防万一，你可以选择以下两种方式之一：
+
+            // 1. 继续使用极验提供的failback备用方案
+            req.session.fallback = true;
+            res.send(data);
+
+            // 2. 使用自己提供的备用方案
+            // todo
+
+        } else {
+            // 正常模式
+            req.session.fallback = false;
+            res.send(data);
+        }
+    });
+});
+
+app.post("/gt/ajax-validate2", function (req, res) {
+
+    // 对ajax提供的验证凭证进行二次验证
+    captcha2.validate(req.session.fallback, {
+
+        geetest_challenge: req.body.geetest_challenge,
+        geetest_validate: req.body.geetest_validate,
+        geetest_seccode: req.body.geetest_seccode
+
+    }, function (err, success) {
+
+        if (err) {
+
+            // 网络错误
+            res.send({
+                status: "error",
+                info: err
+            });
+
+        } else if (!success) {
+
+            // 二次验证失败
+            res.send({
+                status: "fail",
+                info: '登录失败'
+            });
+        } else {
+
+            res.send({
+                status: "success",
+                info: '登录成功'
+            });
+        }
+    });
 });
 // 显示图片
 app.get("/queryImages",function(req,res,next) {
@@ -42,7 +187,7 @@ app.get("/queryImages",function(req,res,next) {
     });  
 });
 //拦截请求
-app.post("/subject/savefile",function (req,res) {
+app.post("/admin/savefile",function (req,res) {
     var form = new formidable.IncomingForm();
     form.encoding = 'utf-8';
     form.uploadDir = path.join(__dirname + "/public/upload");
@@ -67,7 +212,7 @@ app.post("/subject/savefile",function (req,res) {
         res.send({data:avatarName});
     })
 });
-app.get('/subject/queryImages',(req,resp)=>{
+app.get('/admin/queryImages',(req,resp)=>{
   console.log("异步方法执行");
   // file.readImg('./public/upload/psb_2018_2_6_19_18.jpg',response); 
   readfile('./public/upload/psb_2018_2_6_19_18.jpg',function(data){
@@ -94,7 +239,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 // app.use(express.static(path.join(__dirname, 'public')));
 app.use('/public',express.static('public'));//将文件设置成静态
-app.use('/subject', subjectRoute);
+app.use('/admin', adminRoute);
 app.use('/mass', massRoute);
 
 // catch 404 and forward to error handler

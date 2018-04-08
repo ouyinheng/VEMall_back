@@ -3,7 +3,7 @@ let mysql = require('mysql');
 let pool = global.pool;
 if(!pool){
 	pool = mysql.createPool({
-		database:'club',
+		database:'mall',
 		user:'root',
 		password:'root',
 	});
