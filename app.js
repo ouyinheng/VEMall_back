@@ -15,7 +15,7 @@ var adminRoute = require('./routes/adminRoute');
 var massRoute = require('./routes/massRoute');
 
 var app = express();
-
+//解决跨域
 app.all('*', function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     // res.header("Access-Control-Allow-Headers", "X-Requested-With");
@@ -29,6 +29,7 @@ app.all('*', function(req, res, next) {
 var upload = multer({
     dest: './public/upload/'
 });*/
+//极验验证码
 app.use(session({
     secret: 'my-secret',
     resave: false,
@@ -212,6 +213,7 @@ app.post("/admin/savefile",function (req,res) {
         res.send({data:avatarName});
     })
 });
+//显示图片
 app.get('/admin/queryImages',(req,resp)=>{
   console.log("异步方法执行");
   // file.readImg('./public/upload/psb_2018_2_6_19_18.jpg',response); 
@@ -231,6 +233,7 @@ function readfile(path,callback){          //异步读文件，需要传入回�
     });
     console.log("异步方法执行完毕");
 }
+
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
