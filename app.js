@@ -215,7 +215,7 @@ app.post("/admin/savefile",function (req,res) {
 });
 //显示图片
 app.get('/admin/queryImages',(req,resp)=>{
-  console.log("异步方法执行");
+  console.log("正在查询图片");
   // file.readImg('./public/upload/psb_2018_2_6_19_18.jpg',response); 
   readfile('./public/upload/psb_2018_2_6_19_18.jpg',function(data){
     console.log(data);
