@@ -10,6 +10,8 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var formidable = require('formidable');//文件上传
+//服务端渲染
+var serverRenderer = require('./routes/serverRenderer');
 
 var adminRoute = require('./routes/adminRoute');
 var massRoute = require('./routes/massRoute');

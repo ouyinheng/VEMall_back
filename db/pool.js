@@ -5,7 +5,7 @@ if(!pool){
 	pool = mysql.createPool({
 		database:'mall',
 		user:'root',
-		password:'root',
+		password:'963110',
 	});
 	global.pool = pool;
 } 
