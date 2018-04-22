@@ -5,6 +5,18 @@ let myFun = {
 		let a = parseInt(Math.random()*1000000);
 		return a;
 	},
+	getFiles(folder){
+		let fs = require('fs');
+		return new Promise((resolve,reject) => {
+			fs.readdir('./public/upload/'+folder,(err,files) => {
+				// files.forEach((item,index)=>{
+
+				// })
+				resolve(files);
+			})
+		})
+		
+	},
 	//邮件发送
 	sendMail(param,num){
 		'use strict';

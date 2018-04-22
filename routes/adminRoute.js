@@ -29,6 +29,7 @@ route.post('/findAll',(req,resp)=>{
 		resp.send(error);
 	});
 });
+//修改
 route.post('/editUser',(req,resp)=>{
 	var param = req.body;
 	adminDB.editUserInfo(param).then((data)=>{
@@ -37,6 +38,7 @@ route.post('/editUser',(req,resp)=>{
 		resp.send({bool:false});
 	});
 });
+//删除
 route.post('/delUser',(req,resp)=>{
 	var param = req.body;
 	adminDB.delUserInfo(param).then((data)=>{
@@ -45,6 +47,7 @@ route.post('/delUser',(req,resp)=>{
 		resp.send({bool:false});
 	});
 });
+//添加商品
 route.post('/addCommodity',(req,resp)=>{
 	var param = req.body;
 	var url = [];
@@ -58,9 +61,48 @@ route.post('/addCommodity',(req,resp)=>{
 			}).catch();
 		}
 	}).catch((error)=>{
-		
+		console.log(error);
 	});
 })
+//查询商品
+route.post('/queryCommodity',(req,resp)=>{
+	const param = req.body;
+	adminDB.queryCommodity(param).then(data=>{
+		let sendData = data;
+		let k=0;
+		for(let i=0;i<sendData.length;i++){
+			let picture = [];
+			adminDB.getComImg({id:data[i].id}).then(data=>{
+				k++;
+				picture = data
+				sendData[i].picture = picture;
+				if(k==sendData.length){
+					resp.send(sendData);
+				}
+			}).catch(error=>{
+				console.log(error);
+			})
+		}
+	}).catch(error=>{
+		console.log(error);
+	})
+})
+function getimg(data){
+	return new Promise((resolve,reject)=>{
+		let sendData = data;
+		for(let i=0;i<data.length;i++){
+			var picture = [];
+			adminDB.getComImg({id:data[i].id}).then(data=>{
+				picture = data
+				sendData[i].picture = picture;
+				resolve(sendData);
+			}).catch(error=>{
+				console.log(error);
+			})
+		}
+	})
+}
+
 //保存上传文件
 route.post('/savefile',(req,resp)=>{
 	resp.send("哈哈");
@@ -68,6 +110,13 @@ route.post('/savefile',(req,resp)=>{
 //查看图片
 route.get('/queryImages',(req,resp)=>{
 	resp.send("哈哈");
+})
+//读取文件目录文件
+route.post('/getFiles',(req,resp)=>{
+	const folder = req.body.param;
+	myFun.getFiles(folder).then(data=>{
+		resp.send(data);
+	}).catch()
 })
 //发送邮件
 route.post('/findPwd',(req,resp)=>{
@@ -90,7 +139,7 @@ route.post('/findPwd',(req,resp)=>{
 					endtime = date.getFullYear() + "_" + date.getMonth() + "_" + date.getDay() + "_" + date.getHours() + "_" + date.getMinutes();
 					console.log('验证码失效...',endtime);
 					adminDB.loseAuth({id:id,endtime:endtime}).then(data=>{
-						console.log(data);
+						// console.log(data);
 					}).catch()
 				},300000)
 				resp.send('发送成功!');

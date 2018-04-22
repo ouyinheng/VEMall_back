@@ -42,7 +42,7 @@ function execute(sql){
       if(connection){
         connection.release();
       }
-        console.log("释放完成");
+        // console.log("释放完成");
     });
   });
 }

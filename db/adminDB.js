@@ -8,13 +8,26 @@ module.exports = {
 	//添加商品
 	addCommodity(data,url){
 		sql = "insert into commodity values (null,'"+data.name+"','"+data.intro+"','"+data.classify+"',"
-		+data.price+","+data.num+","+data.astrict+",'"+data.region+"','"+data.property+"','"+data.details+"')";
+		+data.price+","+data.num+","+data.astrict+",'"+data.region+"','"+data.property+"','"+data.details+"','"+data.displayImg+"')";
 		return pool.execute(sql);
 	},
 	//商品图片
 	addPicture(id,url){
-		console.log(id,url);
 		sql = "insert into picture values (null,"+id+",'"+url+"')";
+		return pool.execute(sql);
+	},
+	//查询商品
+	queryCommodity(param){
+		if(param.property == null){
+			sql = "select * from commodity";
+		} else {
+			sql = "select * from commodity where property='"+param.property+"'";
+		}
+		return pool.execute(sql);
+	},
+	//查询对应商品的图片
+	getComImg(param){
+		sql = "select * from picture where commodity_id="+param.id;
 		return pool.execute(sql);
 	},
 	//对用户的操作

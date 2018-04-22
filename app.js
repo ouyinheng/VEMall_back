@@ -31,6 +31,14 @@ app.all('*', function(req, res, next) {
 var upload = multer({
     dest: './public/upload/'
 });*/
+/*//读取目录下的文件
+app.get('/admin/getFiles',(req,resp)=>{
+    fs.readdir('./public/upload',(err,files) => {
+        console.log('files:',files);
+        resp.send('开始读取文件目录....');
+    })
+})
+*/
 //极验验证码
 app.use(session({
     secret: 'my-secret',
@@ -191,9 +199,11 @@ app.get("/queryImages",function(req,res,next) {
 });
 //拦截请求
 app.post("/admin/savefile",function (req,res) {
+    const param = url.parse(req.url).query;
+    // const param = req.body.param;
     var form = new formidable.IncomingForm();
     form.encoding = 'utf-8';
-    form.uploadDir = path.join(__dirname + "/public/upload");
+    form.uploadDir = path.join(__dirname + "/public/upload/"+param);
     form.keepExtensions = true;//保留后缀
     form.maxFieldsSize = 2 * 1024 * 1024;
     //处理图片
