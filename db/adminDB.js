@@ -7,7 +7,8 @@ module.exports = {
 	},
 	//添加商品
 	addCommodity(data,url){
-		sql = "insert into commodity values (null,'"+data.name+"','"+data.intro+"','"+data.classify+"',"
+		console.log(data);
+		sql = "insert into commodity values (null,'"+data.shortname+"','"+data.longname+"','"+data.intro+"','"+data.classify+"',"
 		+data.price+","+data.num+","+data.astrict+",'"+data.region+"','"+data.property+"','"+data.details+"','"+data.displayImg+"')";
 		return pool.execute(sql);
 	},
