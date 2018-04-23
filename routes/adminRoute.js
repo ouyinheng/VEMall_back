@@ -170,4 +170,33 @@ route.post('/reg',(req,resp)=>{
 		resp.send(false);
 	})
 })
+//添加收货地址
+route.post('/addUserInfo',(req,resp)=>{
+	const param = req.body;
+	adminDB.addUserInfo(param).then(data=>{
+		resp.send(true);
+	}).catch(error=>{
+		resp.send(false);
+	})
+})
+//获取收货地址
+route.post('/getUserInfo',(req,resp)=>{
+	const param = req.body;
+	adminDB.getUserInfo(param).then(data=>{
+		resp.send(data);
+	}).catch(error=>{
+		console.log(error);
+		resp.send(error);
+	})
+})
+//修改收货地址
+route.post('/editUserInfo',(req,resp)=>{
+	const param = req.body;
+	adminDB.editUserInfo(param).then(data=>{
+		resp.send(true);
+	}).catch(error=>{
+		console.log(error);
+		resp.send(error);
+	})
+})
 module.exports = route;

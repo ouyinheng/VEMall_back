@@ -51,6 +51,21 @@ module.exports = {
 		sql = "insert into personnel (username,password,email) values('"+data.username+"','"+data.password+"','"+data.email+"')";
 		return pool.execute(sql);
 	},
+	//添加收货地址
+	addUserInfo(data){
+		sql = "insert into info values(null,"+data.id+",'"+data.name+"','"+data.site+"','"+data.tel+"',0)";
+		return pool.execute(sql);
+	},
+	//获取收货地址
+	getUserInfo(data){
+		sql = "select * from info where personnel_id="+data.id;
+		return pool.execute(sql);
+	},
+	//修改默认收货地址
+	editUserInfo(data){
+		sql = "update info set status="+data.status+" where id="+data.id;
+		return pool.execute(sql);
+	},
 	//如果邮箱已存在，则失败
 	findEmail(data){
 		sql = "select id from personnel where email = '"+data.email+"'";
