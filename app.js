@@ -15,6 +15,7 @@ var serverRenderer = require('./routes/serverRenderer');
 
 var adminRoute = require('./routes/adminRoute');
 var massRoute = require('./routes/massRoute');
+var nodeRoute = require('./routes/getData');
 
 var app = express();
 //解决跨域
@@ -201,6 +202,7 @@ app.get("/queryImages",function(req,res,next) {
 app.post("/admin/savefile",function (req,res) {
     const param = url.parse(req.url).query;
     // const param = req.body.param;
+    //console.log(param);
     var form = new formidable.IncomingForm();
     form.encoding = 'utf-8';
     form.uploadDir = path.join(__dirname + "/public/upload/"+param);
@@ -256,6 +258,7 @@ app.use(cookieParser());
 app.use('/public',express.static('public'));//将文件设置成静态
 app.use('/admin', adminRoute);
 app.use('/mass', massRoute);
+app.use('/node',nodeRoute);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

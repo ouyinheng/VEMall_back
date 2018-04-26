@@ -189,11 +189,64 @@ route.post('/getUserInfo',(req,resp)=>{
 		resp.send(error);
 	})
 })
+//获取商品收货地址
+route.post('/getUserSite',(req,resp)=>{
+	const param = req.body;
+	adminDB.getUserSite(param).then(data=>{
+		resp.send(data);
+	}).catch(error=>{
+		console.log(error);
+		resp.send(error);
+	})
+})
 //修改收货地址
 route.post('/editUserInfo',(req,resp)=>{
 	const param = req.body;
 	adminDB.editUserInfo(param).then(data=>{
 		resp.send(true);
+	}).catch(error=>{
+		console.log(error);
+		resp.send(error);
+	})
+})
+//添加订单
+route.post('/addUserOrder',(req,resp)=>{
+	const param = req.body;
+	adminDB.addUserOrder(param).then(data=>{
+		setTimeout(function(){
+			resp.send(true);
+		},1000)
+	}).catch(error=>{
+		console.log(error);
+		resp.send(error);
+	})
+})
+//查询订单
+route.post('/queryUserOrder',(req,resp)=>{
+	const param = req.body;
+	adminDB.queryUserOrder(param).then(data=>{
+		resp.send(data);
+	}).catch(error=>{
+		console.log(error);
+		resp.send(error);
+	})
+})
+//查询商品
+route.post('/queryComm',(req,resp)=>{
+	const param = req.body;
+	adminDB.queryComm(param).then(data=>{
+		resp.send(data);
+	}).catch(error=>{
+		console.log(error);
+		resp.send(error);
+	})
+})
+//修改用户头像
+route.post('/editUserIcon',(req,resp)=>{
+	const param = req.body;
+	console.log(param);
+	adminDB.editUserIcon(param).then(data=>{
+		resp.send(data);
 	}).catch(error=>{
 		console.log(error);
 		resp.send(error);

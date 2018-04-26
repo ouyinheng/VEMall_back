@@ -41,6 +41,10 @@ module.exports = {
 		sql = "update personnel set username='"+param.username+"',password='"+param.password+"',status="+param.status+" where id="+param.id;
 		return pool.execute(sql);
 	},
+	editUserIcon(param){
+		sql = "update personnel set icon_url='icon/"+param.icon_url+"' where id="+param.id;
+		return pool.execute(sql);
+	},
 	//删除用户信息
 	delUserInfo(param){
 		sql = "delete from personnel where id = "+param.id;
@@ -61,9 +65,33 @@ module.exports = {
 		sql = "select * from info where personnel_id="+data.id;
 		return pool.execute(sql);
 	},
+	getUserSite(data){
+		sql = "select * from info where id="+data.id;
+		return pool.execute(sql);
+	},
 	//修改默认收货地址
 	editUserInfo(data){
 		sql = "update info set status="+data.status+" where id="+data.id;
+		return pool.execute(sql);
+	},
+	//添加订单
+	addUserOrder(data){
+		sql = "insert into orderFrom values(null,"+data.user_id+",'"+JSON.stringify(data.commodityInfo)+"',"+data.site_id+",0,'"+data.order_time+"',null)";
+		return pool.execute(sql);
+	},
+	//查询订单
+	queryUserOrder(data){
+		if(data.id == null){
+			sql = "select * from orderFrom";
+			return pool.execute(sql);
+		} else {
+			sql = "select * from orderFrom where user_id="+data.id;
+			return pool.execute(sql);
+		}
+	},
+	//查询商品
+	queryComm(data){
+		sql = "select * from commodity where id="+data.id;
 		return pool.execute(sql);
 	},
 	//如果邮箱已存在，则失败
