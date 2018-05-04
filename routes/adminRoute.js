@@ -16,6 +16,20 @@ route.post('/login',(req,resp)=>{
 		resp.send(error)
 	})
 })
+//登录
+route.post('/adminLogin',(req,resp)=>{
+	var user = req.body
+	adminDB.adminLogin(user).then((data)=>{
+		console.log(data.length);
+		if(data.length == 0){
+			resp.send(false)
+		} else {
+			resp.send(data[0])
+		}
+	}).catch((error)=>{
+		resp.send(error)
+	})
+})
 //查询所有用户
 route.post('/findAll',(req,resp)=>{
 	/*resp.writeHead(200,'ok',{
@@ -87,6 +101,48 @@ route.post('/queryCommodity',(req,resp)=>{
 		console.log(error);
 	})
 })
+//添加轮播图
+route.post('/addSlideShow',(req,resp)=>{
+	var param = req.body;
+	console.log(param);
+	adminDB.querySlideShow(param).then((data)=>{
+		// resp.send(data);
+		if(data.length == 0){
+			adminDB.addSlideShow(param).then((data)=>{
+				resp.send(true);
+			}).catch((error)=>{
+				console.log(error);
+			});
+		} else {
+			adminDB.updateSlideShow(param).then((data)=>{
+				resp.send(true);
+			}).catch((error)=>{
+				console.log(error);
+			});
+		}
+	}).catch((error)=>{
+		console.log(error);
+	});
+	
+})
+
+//查询轮播图
+route.post('/querySlideShow',(req,resp)=>{
+	var param = req.body;
+	adminDB.querySlideShow(param).then((data)=>{
+		resp.send(data);
+	}).catch((error)=>{
+		console.log(error);
+	});
+})
+//添加轮播图
+route.post('/queryAllSlideShow',(req,resp)=>{
+	adminDB.queryAllSlideShow().then((data)=>{
+		resp.send(data);
+	}).catch((error)=>{
+		console.log(error);
+	});
+})
 function getimg(data){
 	return new Promise((resolve,reject)=>{
 		let sendData = data;
@@ -103,6 +159,29 @@ function getimg(data){
 	})
 }
 
+route.post('/getCom',(req,resp)=>{
+	var param = req.body;
+	adminDB.getCom(param).then((data)=>{
+		// resp.send(data);
+		let sendData = data;
+		let k=0;
+		for(let i=0;i<sendData.length;i++){
+			let picture = [];
+			adminDB.getComImg({id:data[i].id}).then(data=>{
+				k++;
+				picture = data
+				sendData[i].picture = picture;
+				if(k==sendData.length){
+					resp.send(sendData);
+				}
+			}).catch(error=>{
+				console.log(error);
+			})
+		}
+	}).catch((error)=>{
+		console.log(error);
+	});
+})
 //保存上传文件
 route.post('/savefile',(req,resp)=>{
 	resp.send("哈哈");
@@ -149,6 +228,30 @@ route.post('/findPwd',(req,resp)=>{
 			})
 		}
 	}).catch()
+})
+//发送邮件
+route.post('/forgetPwd',(req,resp)=>{
+	const param = req.body.param;
+	const num = myFun.getRandom();//验证码
+	var date = new Date();
+	const begintime = date.getFullYear() + "_" + date.getMonth() + "_" + date.getDay() + "_" + date.getHours() + "_" + date.getMinutes();
+	let endtime = '';
+	//不是
+	adminDB.addEmailAuth({email:param,auth:num,begintime:begintime,endtime:endtime,status:1}).then(data=>{
+		myFun.findPwd(param,num);
+		const id = data.insertId;
+		setTimeout(function(){
+			endtime = date.getFullYear() + "_" + date.getMonth() + "_" + date.getDay() + "_" + date.getHours() + "_" + date.getMinutes();
+			console.log('验证码失效...',endtime);
+			adminDB.loseAuth({id:id,endtime:endtime}).then(data=>{
+				// console.log(data);
+			}).catch()
+		},300000)
+		resp.send('发送成功!');
+	}).catch(error=>{
+		console.log(error);
+		resp.send('发送失败!');
+	})
 })
 //查找验证码与邮箱
 route.post('/verify',(req,resp)=>{
@@ -231,6 +334,26 @@ route.post('/queryUserOrder',(req,resp)=>{
 		resp.send(error);
 	})
 })
+//删除订单
+route.post('/delUserOrder',(req,resp)=>{
+	const param = req.body;
+	adminDB.delUserOrder(param).then(data=>{
+		resp.send(true);
+	}).catch(error=>{
+		console.log(error);
+		resp.send(error);
+	})
+})
+//修改订单
+route.post('/editUserOrder',(req,resp)=>{
+	const param = req.body;
+	adminDB.editUserOrder(param).then(data=>{
+		resp.send(true);
+	}).catch(error=>{
+		console.log(error);
+		resp.send(error);
+	})
+})
 //查询商品
 route.post('/queryComm',(req,resp)=>{
 	const param = req.body;
@@ -244,7 +367,6 @@ route.post('/queryComm',(req,resp)=>{
 //修改用户头像
 route.post('/editUserIcon',(req,resp)=>{
 	const param = req.body;
-	console.log(param);
 	adminDB.editUserIcon(param).then(data=>{
 		resp.send(data);
 	}).catch(error=>{

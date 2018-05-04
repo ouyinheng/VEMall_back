@@ -5,6 +5,10 @@ module.exports = {
 		sql = "select * from personnel where username='"+data.username+"' and password='"+data.password+"'";
 		return pool.execute(sql);
 	},
+	adminLogin(data){
+		sql = "select * from admin where username='"+data.username+"' and password='"+data.password+"'";
+		return pool.execute(sql);
+	},
 	//添加商品
 	addCommodity(data,url){
 		console.log(data);
@@ -26,9 +30,32 @@ module.exports = {
 		}
 		return pool.execute(sql);
 	},
+	//添加轮播图
+	addSlideShow(param){
+		sql = "insert into slideshow values (null,"+param.id+",'"+param.url+"')";
+		return pool.execute(sql);
+	},
+	//查询轮播图
+	querySlideShow(param){
+		sql = "select * from slideshow where commodity_id="+param.id;
+		return pool.execute(sql);
+	},
+	queryAllSlideShow(){
+		sql = "select * from slideshow";
+		return pool.execute(sql);
+	},
+	//修改轮播图
+	updateSlideShow(param){
+		sql = "update slideshow set url='"+param.url+"' where commodity_id="+param.id;
+		return pool.execute(sql);
+	},
 	//查询对应商品的图片
 	getComImg(param){
 		sql = "select * from picture where commodity_id="+param.id;
+		return pool.execute(sql);
+	},
+	getCom(param){
+		sql = "select * from commodity where id="+param.id;
 		return pool.execute(sql);
 	},
 	//对用户的操作
@@ -79,6 +106,11 @@ module.exports = {
 		sql = "insert into orderFrom values(null,"+data.user_id+",'"+JSON.stringify(data.commodityInfo)+"',"+data.site_id+",0,'"+data.order_time+"',null)";
 		return pool.execute(sql);
 	},
+	//删除订单
+	delUserOrder(data){
+		sql = "delete from orderFrom where id="+data.id;
+		return pool.execute(sql);
+	},
 	//查询订单
 	queryUserOrder(data){
 		if(data.id == null){
@@ -88,6 +120,11 @@ module.exports = {
 			sql = "select * from orderFrom where user_id="+data.id;
 			return pool.execute(sql);
 		}
+	},
+	//修改订单
+	editUserOrder(data){
+		sql = "update orderFrom set "+data.obj+"="+data.data+" where id = "+data.id;
+		return pool.execute(sql);
 	},
 	//查询商品
 	queryComm(data){

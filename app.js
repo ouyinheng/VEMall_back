@@ -15,7 +15,6 @@ var serverRenderer = require('./routes/serverRenderer');
 
 var adminRoute = require('./routes/adminRoute');
 var massRoute = require('./routes/massRoute');
-var nodeRoute = require('./routes/getData');
 
 var app = express();
 //解决跨域
@@ -258,7 +257,7 @@ app.use(cookieParser());
 app.use('/public',express.static('public'));//将文件设置成静态
 app.use('/admin', adminRoute);
 app.use('/mass', massRoute);
-app.use('/node',nodeRoute);
+app.use('/test',serverRenderer);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

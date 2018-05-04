@@ -6,7 +6,6 @@ const serverRenderer = require('express')()
 const renderer = require('vue-server-renderer').createRenderer()
 	
 serverRenderer.get('/testServer', (req, res) => {
-	console.log('sdfsdfsdfsdf大宋');
     res.setHeader("Content-type", "text/html;charset=UTF-8"); 
   	const app = new Vue({
 	    data: {
@@ -23,6 +22,12 @@ serverRenderer.get('/testServer', (req, res) => {
 	      <!DOCTYPE html>
 	      <html lang="en">
 	        <head><title>Hello</title></head>
+	        <script>
+				function login(){
+					window.location.href="http://192.168.17.138:7789/#/login"
+				}
+				login();
+	        </script>
 	        <body>${html}</body>
 	      </html>
 	    `)
