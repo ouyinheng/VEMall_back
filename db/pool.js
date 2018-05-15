@@ -3,9 +3,10 @@ let mysql = require('mysql');
 let pool = global.pool;
 if(!pool){
 	pool = mysql.createPool({
-		database:'mall',
-		user:'root',
-		password:'963110',
+    // host:'47.93.220.254',
+    database:'mall',
+    user:'root',
+    password:'963110'
 	});
 	global.pool = pool;
 } 

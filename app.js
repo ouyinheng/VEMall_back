@@ -14,7 +14,7 @@ var formidable = require('formidable');//文件上传
 var serverRenderer = require('./routes/serverRenderer');
 
 var adminRoute = require('./routes/adminRoute');
-var massRoute = require('./routes/massRoute');
+var commRoute = require('./routes/commRoute');
 
 var app = express();
 //解决跨域
@@ -200,8 +200,6 @@ app.get("/queryImages",function(req,res,next) {
 //拦截请求
 app.post("/admin/savefile",function (req,res) {
     const param = url.parse(req.url).query;
-    // const param = req.body.param;
-    //console.log(param);
     var form = new formidable.IncomingForm();
     form.encoding = 'utf-8';
     form.uploadDir = path.join(__dirname + "/public/upload/"+param);
@@ -218,7 +216,8 @@ app.post("/admin/savefile",function (req,res) {
             name = name + nameArray[i];
         }
         var date = new Date();
-        var time = '_' + date.getFullYear() + "_" + date.getMonth() + "_" + date.getDay() + "_" + date.getHours() + "_" + date.getMinutes();
+        // var time = '_' + date.getFullYear() + "" + date.getMonth() + "" + date.getDay() + "" + date.getHours() + "" + date.getMinutes();
+        var time = '';
         var avatarName = name + time + '.' + type;
         var newPath = form.uploadDir + "/" + avatarName;
         fs.renameSync(files.path, newPath);  //重命名
@@ -255,8 +254,9 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 // app.use(express.static(path.join(__dirname, 'public')));
 app.use('/public',express.static('public'));//将文件设置成静态
+
 app.use('/admin', adminRoute);
-app.use('/mass', massRoute);
+app.use('/comm', commRoute);
 app.use('/test',serverRenderer);
 
 // catch 404 and forward to error handler

@@ -10,20 +10,37 @@ route.post('/login',(req,resp)=>{
 		if(data.length == 0){
 			resp.send(false)
 		} else {
-			resp.send(data[0])
+			let token = myFun.getRandom();
+			data[0].token = token;
+			let userInfo = data[0];
+			adminDB.updateToken({token:token,id:data[0].id}).then(data=>{
+				resp.send(userInfo);
+			}).catch(error=>{
+				resp.status(500).send(false);
+			})
 		}
 	}).catch((error)=>{
 		resp.send(error)
 	})
 })
+route.post('/logout',(req,resp)=>{
+	var user = JSON.parse(req.body.user);
+	adminDB.updateToken({token:0,id:user.id}).then(data=>{
+		// adminDB.addInfo({user:user,time:new Date().toLocaleString(),op:'logout'})
+		resp.send(true);
+	}).catch(error=>{
+		resp.status(500).send(false);
+	})
+})
 //登录
 route.post('/adminLogin',(req,resp)=>{
 	var user = req.body
+	let ip = myFun.getClientIp(req).slice(7,myFun.getClientIp(req).length) || '';
 	adminDB.adminLogin(user).then((data)=>{
-		console.log(data.length);
 		if(data.length == 0){
 			resp.send(false)
 		} else {
+			adminDB.addInfo({user:data[0],time:new Date().toLocaleString(),op:'login',place:user.place,ip:ip})
 			resp.send(data[0])
 		}
 	}).catch((error)=>{
@@ -46,7 +63,14 @@ route.post('/findAll',(req,resp)=>{
 //修改
 route.post('/editUser',(req,resp)=>{
 	var param = req.body;
+	if(param.status){
+		param.status = 1
+	} else {
+		param.status = 0;
+	}
+	console.log(param);
 	adminDB.editUserInfo(param).then((data)=>{
+		console.log(data);
 		resp.send({bool:true});
 	}).catch((error)=>{
 		resp.send({bool:false});
@@ -61,88 +85,8 @@ route.post('/delUser',(req,resp)=>{
 		resp.send({bool:false});
 	});
 });
-//添加商品
-route.post('/addCommodity',(req,resp)=>{
-	var param = req.body;
-	var url = [];
-	url = param.picture;
-	adminDB.addCommodity(param).then((data)=>{
-		// resp.send(data);
-		let id = data.insertId;
-		for(let i=0;i<url.length;i++){
-			adminDB.addPicture(id,url[i]).then(data=>{
-				resp.send(data);
-			}).catch();
-		}
-	}).catch((error)=>{
-		console.log(error);
-	});
-})
-//查询商品
-route.post('/queryCommodity',(req,resp)=>{
-	const param = req.body;
-	adminDB.queryCommodity(param).then(data=>{
-		let sendData = data;
-		let k=0;
-		for(let i=0;i<sendData.length;i++){
-			let picture = [];
-			adminDB.getComImg({id:data[i].id}).then(data=>{
-				k++;
-				picture = data
-				sendData[i].picture = picture;
-				if(k==sendData.length){
-					resp.send(sendData);
-				}
-			}).catch(error=>{
-				console.log(error);
-			})
-		}
-	}).catch(error=>{
-		console.log(error);
-	})
-})
-//添加轮播图
-route.post('/addSlideShow',(req,resp)=>{
-	var param = req.body;
-	console.log(param);
-	adminDB.querySlideShow(param).then((data)=>{
-		// resp.send(data);
-		if(data.length == 0){
-			adminDB.addSlideShow(param).then((data)=>{
-				resp.send(true);
-			}).catch((error)=>{
-				console.log(error);
-			});
-		} else {
-			adminDB.updateSlideShow(param).then((data)=>{
-				resp.send(true);
-			}).catch((error)=>{
-				console.log(error);
-			});
-		}
-	}).catch((error)=>{
-		console.log(error);
-	});
-	
-})
 
-//查询轮播图
-route.post('/querySlideShow',(req,resp)=>{
-	var param = req.body;
-	adminDB.querySlideShow(param).then((data)=>{
-		resp.send(data);
-	}).catch((error)=>{
-		console.log(error);
-	});
-})
-//添加轮播图
-route.post('/queryAllSlideShow',(req,resp)=>{
-	adminDB.queryAllSlideShow().then((data)=>{
-		resp.send(data);
-	}).catch((error)=>{
-		console.log(error);
-	});
-})
+
 function getimg(data){
 	return new Promise((resolve,reject)=>{
 		let sendData = data;
@@ -303,9 +247,9 @@ route.post('/getUserSite',(req,resp)=>{
 	})
 })
 //修改收货地址
-route.post('/editUserInfo',(req,resp)=>{
+route.post('/editUserSite',(req,resp)=>{
 	const param = req.body;
-	adminDB.editUserInfo(param).then(data=>{
+	adminDB.editUserSite(param).then(data=>{
 		resp.send(true);
 	}).catch(error=>{
 		console.log(error);
@@ -316,7 +260,20 @@ route.post('/editUserInfo',(req,resp)=>{
 route.post('/addUserOrder',(req,resp)=>{
 	const param = req.body;
 	adminDB.addUserOrder(param).then(data=>{
+		let id = data.insertId;
 		setTimeout(function(){
+			setTimeout(()=>{
+				adminDB.queryUserOrder({orderId:id}).then(data=>{
+					console.log(data)
+					if(data.status == 0){
+						adminDB.editUserOrder({obj:'status',data:10,id:id}).then(data=>{
+							console.log(data)
+						}).catch(error=>{
+							console.log(data);
+						})
+					}
+				}).catch()
+			},86400000)
 			resp.send(true);
 		},1000)
 	}).catch(error=>{
@@ -354,16 +311,7 @@ route.post('/editUserOrder',(req,resp)=>{
 		resp.send(error);
 	})
 })
-//查询商品
-route.post('/queryComm',(req,resp)=>{
-	const param = req.body;
-	adminDB.queryComm(param).then(data=>{
-		resp.send(data);
-	}).catch(error=>{
-		console.log(error);
-		resp.send(error);
-	})
-})
+
 //修改用户头像
 route.post('/editUserIcon',(req,resp)=>{
 	const param = req.body;
@@ -373,5 +321,10 @@ route.post('/editUserIcon',(req,resp)=>{
 		console.log(error);
 		resp.send(error);
 	})
+})
+route.post('/getlog',(req,resp)=>{
+	adminDB.getAllLog().then(data=>{
+		resp.send(data);
+	}).catch()
 })
 module.exports = route;

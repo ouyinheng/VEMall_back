@@ -5,57 +5,23 @@ module.exports = {
 		sql = "select * from personnel where username='"+data.username+"' and password='"+data.password+"'";
 		return pool.execute(sql);
 	},
+	//登录状态
+	updateToken(data){
+		sql = "update personnel set token="+data.token+" where id = "+data.id;
+		return pool.execute(sql);
+	},
 	adminLogin(data){
 		sql = "select * from admin where username='"+data.username+"' and password='"+data.password+"'";
 		return pool.execute(sql);
 	},
-	//添加商品
-	addCommodity(data,url){
-		console.log(data);
-		sql = "insert into commodity values (null,'"+data.shortname+"','"+data.longname+"','"+data.intro+"','"+data.classify+"',"
-		+data.price+","+data.num+","+data.astrict+",'"+data.region+"','"+data.property+"','"+data.details+"','"+data.displayImg+"')";
-		return pool.execute(sql);
-	},
-	//商品图片
-	addPicture(id,url){
-		sql = "insert into picture values (null,"+id+",'"+url+"')";
-		return pool.execute(sql);
-	},
-	//查询商品
-	queryCommodity(param){
-		if(param.property == null){
-			sql = "select * from commodity";
-		} else {
-			sql = "select * from commodity where property='"+param.property+"'";
-		}
-		return pool.execute(sql);
-	},
-	//添加轮播图
-	addSlideShow(param){
-		sql = "insert into slideshow values (null,"+param.id+",'"+param.url+"')";
-		return pool.execute(sql);
-	},
-	//查询轮播图
-	querySlideShow(param){
-		sql = "select * from slideshow where commodity_id="+param.id;
-		return pool.execute(sql);
-	},
-	queryAllSlideShow(){
-		sql = "select * from slideshow";
-		return pool.execute(sql);
-	},
-	//修改轮播图
-	updateSlideShow(param){
-		sql = "update slideshow set url='"+param.url+"' where commodity_id="+param.id;
+	
+	getCom(param){
+		sql = "select * from commodity where id="+param.id;
 		return pool.execute(sql);
 	},
 	//查询对应商品的图片
 	getComImg(param){
 		sql = "select * from picture where commodity_id="+param.id;
-		return pool.execute(sql);
-	},
-	getCom(param){
-		sql = "select * from commodity where id="+param.id;
 		return pool.execute(sql);
 	},
 	//对用户的操作
@@ -65,7 +31,7 @@ module.exports = {
 	},
 	//编辑用户信息
 	editUserInfo(param){
-		sql = "update personnel set username='"+param.username+"',password='"+param.password+"',status="+param.status+" where id="+param.id;
+		sql = "update personnel set status="+param.status+" where id="+param.id;
 		return pool.execute(sql);
 	},
 	editUserIcon(param){
@@ -97,7 +63,7 @@ module.exports = {
 		return pool.execute(sql);
 	},
 	//修改默认收货地址
-	editUserInfo(data){
+	editUserSite(data){
 		sql = "update info set status="+data.status+" where id="+data.id;
 		return pool.execute(sql);
 	},
@@ -113,7 +79,10 @@ module.exports = {
 	},
 	//查询订单
 	queryUserOrder(data){
-		if(data.id == null){
+		if(data.orderId){
+			sql = "select * from orderFrom where id="+data.orderId;
+			return pool.execute(sql);
+		} else if(data.id == null){
 			sql = "select * from orderFrom";
 			return pool.execute(sql);
 		} else {
@@ -126,11 +95,7 @@ module.exports = {
 		sql = "update orderFrom set "+data.obj+"="+data.data+" where id = "+data.id;
 		return pool.execute(sql);
 	},
-	//查询商品
-	queryComm(data){
-		sql = "select * from commodity where id="+data.id;
-		return pool.execute(sql);
-	},
+	
 	//如果邮箱已存在，则失败
 	findEmail(data){
 		sql = "select id from personnel where email = '"+data.email+"'";
@@ -150,6 +115,16 @@ module.exports = {
 	//验证码失效
 	loseAuth(data){
 		sql = "update email set status=0,endtime = '"+data.endtime+"' where id = "+data.id;
+		return pool.execute(sql);
+	},
+	//添加日志
+	addInfo(param){
+		let sql = "insert into syslog values(null,'"+param.user.username+"','"+param.op+"','"+param.time+"',"+param.user.limit+",'"+param.place+"','"+param.ip+"')"
+		return pool.execute(sql);
+	},
+	//查询所有日志
+	getAllLog(){
+		let sql = "select * from syslog";
 		return pool.execute(sql);
 	}
 }
